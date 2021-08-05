@@ -7,6 +7,7 @@ build = "build.rs"
 [dependencies]
 sgx_types = { git = "https://github.com/apache/teaclave-sgx-sdk.git" }
 sgx_urts = { git = "https://github.com/apache/teaclave-sgx-sdk.git" }
+multi-party-ecdsa = { git = "https://github.com/sgx-test/multi-party-ecdsa", branch = "0.4.6-sgx-struct" }
 
 [patch.'https://github.com/apache/teaclave-sgx-sdk.git']
 sgx_types = { path = "../../../sgx_types" }

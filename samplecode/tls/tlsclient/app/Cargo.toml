@@ -8,6 +8,9 @@ build = "build.rs"
 sgx_types = { git = "https://github.com/apache/teaclave-sgx-sdk.git" }
 sgx_urts = { git = "https://github.com/apache/teaclave-sgx-sdk.git" }
 mio = "0.6"
+struct-test = { path = "../../../../../struct-test-std" }
+serde = { version = "1.0",features = ["derive"] }
+serde_json = { }
 
 [patch.'https://github.com/apache/teaclave-sgx-sdk.git']
 sgx_types = { path = "../../../../sgx_types" }

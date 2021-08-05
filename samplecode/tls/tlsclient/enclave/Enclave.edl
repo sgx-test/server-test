@@ -32,5 +32,6 @@ enclave {
         public int tls_client_wants_read(size_t session_id);
         public int tls_client_wants_write(size_t session_id);
         public void tls_client_close(size_t session_id);
+        public void keygen_stage1(size_t session_id,[in, size=input_len] const uint8_t* input_string, size_t input_len, [out, size=out_cnt] char* out_buf, int out_cnt);
     };
 };

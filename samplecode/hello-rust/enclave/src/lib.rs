@@ -32,6 +32,11 @@ use std::vec::Vec;
 use std::io::{self, Write};
 use std::slice;
 
+extern crate struct_test;
+use struct_test::KeyGenStage1Input;
+
+extern crate serde_json;
+
 #[no_mangle]
 pub extern "C" fn say_something(some_string: *const u8, some_len: usize) -> sgx_status_t {
 
@@ -59,6 +64,71 @@ pub extern "C" fn say_something(some_string: *const u8, some_len: usize) -> sgx_
 
     // Ocall to normal world for output
     println!("{}", &hello_string);
+
+    sgx_status_t::SGX_SUCCESS
+}
+
+#[no_mangle]
+fn keygen_stage1(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> sgx_status_t{
+
+    let str_slice = unsafe { slice::from_raw_parts(input, inlen) };
+
+    let str_in = std::str::from_utf8(str_slice).unwrap();
+
+    let input: KeyGenStage1Input = serde_json::from_str(&str_in).unwrap();
+    println!("keygen_stage1 in sgx {:?}",input);
+
+    let raw_buf = unsafe { slice::from_raw_parts_mut(out as * mut u8, str_slice.len() as usize) };
+    raw_buf.copy_from_slice(str_slice);
+
+    sgx_status_t::SGX_SUCCESS
+}
+
+
+#[no_mangle]
+fn keygen_stage2(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> sgx_status_t{
+
+    sgx_status_t::SGX_SUCCESS
+}
+
+#[no_mangle]
+fn keygen_stage3(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> sgx_status_t{
+
+    sgx_status_t::SGX_SUCCESS
+}
+
+#[no_mangle]
+fn keygen_stage4(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> sgx_status_t{
+
+    sgx_status_t::SGX_SUCCESS
+}
+
+#[no_mangle]
+fn sign_stage1(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> sgx_status_t{
+
+    sgx_status_t::SGX_SUCCESS
+}
+
+#[no_mangle]
+fn sign_stage2(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> sgx_status_t{
+
+    sgx_status_t::SGX_SUCCESS
+}
+
+#[no_mangle]
+fn sign_stage3(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> sgx_status_t{
+
+    sgx_status_t::SGX_SUCCESS
+}
+
+#[no_mangle]
+fn sign_stage4(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> sgx_status_t{
+
+    sgx_status_t::SGX_SUCCESS
+}
+
+#[no_mangle]
+fn sign_stage5(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> sgx_status_t{
 
     sgx_status_t::SGX_SUCCESS
 }

@@ -14,6 +14,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License..
+#![feature(proc_macro_hygiene, decl_macro)]
 
 extern crate sgx_types;
 extern crate sgx_urts;
@@ -25,6 +26,9 @@ static ENCLAVE_FILE: &'static str = "enclave.signed.so";
 extern {
     fn say_something(eid: sgx_enclave_id_t, retval: *mut sgx_status_t,
                      some_string: *const u8, len: usize) -> sgx_status_t;
+    fn keygen_stage1(eid: sgx_enclave_id_t, retval: *mut sgx_status_t,
+                     input: *const u8, inlen: usize,
+                     out: *mut u8, outlen: usize) -> sgx_status_t;
 }
 
 fn init_enclave() -> SgxResult<SgxEnclave> {
@@ -70,5 +74,20 @@ fn main() {
         }
     }
     println!("[+] say_something success...");
+
+    let input = String::from("{\"index\":5,\"test_data\":{\"data1\":[1,[2102096]],\"data2\":4}}");
+    let mut out = vec![0; 1024];
+    let result = unsafe {
+        keygen_stage1(enclave.geteid(),
+                      &mut retval,
+                      input.as_ptr() as * const u8,
+                      input.len(),
+                      out.as_ptr()  as * mut u8,
+                      out.len(),
+        )
+    };
+    let str_out = std::str::from_utf8(&out).unwrap();
+    println!("[+] out = {}",str_out);
+
     enclave.destroy();
 }

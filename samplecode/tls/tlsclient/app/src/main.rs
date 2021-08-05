@@ -31,6 +31,10 @@ use std::net::SocketAddr;
 use std::str;
 use std::io::{self, Write};
 
+extern crate struct_test;
+use struct_test::KeyGenStage1Input;
+extern crate serde;
+
 const BUFFER_SIZE: usize = 1024;
 
 static ENCLAVE_FILE: &'static str = "enclave.signed.so";
@@ -48,6 +52,45 @@ extern {
                      session_id: usize) -> sgx_status_t;
     fn tls_client_close(eid: sgx_enclave_id_t,
                      session_id: usize) -> sgx_status_t;
+    fn keygen_stage1(eid: sgx_enclave_id_t, retval: *mut sgx_status_t,
+                     input_string: *const u8, input_len: usize,
+                     out_buf: *const c_void, out_cnt: c_int) -> sgx_status_t;
+}
+
+struct EnclaveId{
+    enclave_id: sgx_enclave_id_t,
+}
+
+impl EnclaveId {
+    pub fn new(enclave_id: sgx_enclave_id_t) -> EnclaveId{
+        EnclaveId{
+            enclave_id: enclave_id,
+        }
+    }
+
+    pub fn keygen_stage1_exec(&self){
+        let stage1_input = KeyGenStage1Input::new();
+        println!("keygen_stage1_exec");
+        //stage1_input.serilise
+        let stage1_input_serded:String = serde_json::to_string(&stage1_input).unwrap();
+        println!("str 1");
+        println!("str {}",stage1_input_serded);
+        let input: KeyGenStage1Input = serde_json::from_str(&stage1_input_serded).unwrap();
+        println!("str 2");
+        let mut retval = -1;
+
+        let mut out = vec![0; 4096];
+        let mut retval = sgx_status_t::SGX_SUCCESS;
+        let result = unsafe{
+            keygen_stage1(self.enclave_id, &mut retval
+                          ,stage1_input_serded.as_ptr() as * const u8
+                          ,stage1_input_serded.len() as usize
+                          ,out.as_mut_slice().as_mut_ptr() as * mut c_void,
+                          out.len() as c_int)
+
+        };
+    }
+
 }
 
 fn init_enclave() -> SgxResult<SgxEnclave> {
@@ -333,48 +376,10 @@ fn main() {
     };
 
     println!("[+] Test tlsclient in enclave, start!");
+    println!("[+] Test tlsclient in enclave, start2!");
 
-    let port = 8443;
-    let hostname = "localhost";
-    let cert = "./ca.cert";
-    let addr = lookup_ipv4(hostname, port);
-    let sock = TcpStream::connect(&addr).expect("[-] Connect tls server failed!");
-
-    let tlsclient = TlsClient::new(enclave.geteid(),
-                                   sock,
-                                   hostname,
-                                   cert);
-
-    if tlsclient.is_some() {
-        println!("[+] Tlsclient new success!");
-
-        let mut tlsclient = tlsclient.unwrap();
-
-        let httpreq = format!("GET / HTTP/1.1\r\nHost: {}\r\nConnection: \
-                               close\r\nAccept-Encoding: identity\r\n\r\n",
-                              hostname);
-
-        tlsclient.write_all(httpreq.as_bytes()).unwrap();
-
-        let mut poll = mio::Poll::new()
-            .unwrap();
-        let mut events = mio::Events::with_capacity(32);
-        tlsclient.register(&mut poll);
-
-        'outer: loop {
-            poll.poll(&mut events, None).unwrap();
-            for ev in events.iter() {
-                if !tlsclient.ready(&mut poll, &ev) {
-                    tlsclient.close();
-                    break 'outer ;
-                }
-            }
-        }
-    } else {
-        println!("[-] Tlsclient new failed!");
-    }
-
-    println!("[+] Test tlsclient in enclave, done!");
+    let exec = EnclaveId::new(enclave.geteid());
+    exec.keygen_stage1_exec();
 
     enclave.destroy();
 }

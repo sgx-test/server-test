@@ -44,7 +44,7 @@ use std::os::raw::c_char;
 use std::string::String;
 use std::vec::Vec;
 use std::boxed::Box;
-use std::io::{Read, Write};
+use std::io::{self, Read, Write};
 use std::slice;
 use std::sync::{Arc, SgxMutex, SgxRwLock};
 use std::net::TcpStream;
@@ -54,6 +54,47 @@ use std::sync::atomic::{AtomicUsize, AtomicPtr, Ordering};
 extern crate webpki;
 extern crate rustls;
 use rustls::Session;
+
+extern crate struct_test;
+use struct_test::KeyGenStage1Input;
+
+extern crate serde_json;
+use std::borrow::ToOwned;
+
+#[no_mangle]
+pub extern "C" fn keygen_stage1(input_string: *const u8, input_len: usize,
+                                out_buf: *const u8, out_cnt: usize) -> sgx_status_t{
+
+    let str_slice2 = unsafe { slice::from_raw_parts(input_string, input_len) };
+    let _ = io::stdout().write(str_slice2);
+
+
+   // let str_slice = unsafe { String::from_raw_parts(input_string as * mut u8, input_len as usize, input_len as usize) };
+    //println!("keygen_stage1 in sgx,str_slice {:?}",str_slice);
+
+//    //let mut str_in = str_slice.to_owned();
+//    let str_in = std::str::from_utf8(str_slice).unwrap();
+//    println!("keygen_stage1 in sgx from_utf8");
+
+   // let input: KeyGenStage1Input = serde_json::from_str(&str_slice).unwrap();
+
+    println!("keygen_stage1 in sgx");
+    sgx_status_t::SGX_SUCCESS
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 pub struct TlsClient {
     socket: TcpStream,
