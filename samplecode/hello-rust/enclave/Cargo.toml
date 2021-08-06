@@ -8,9 +8,17 @@ name = "helloworldsampleenclave"
 crate-type = ["staticlib"]
 
 [dependencies]
-struct-test = { path = "../../../../struct-test" }
+#struct-test = { path = "../../../../struct-test" }
 serde_json = { git = "https://github.com/mesalock-linux/serde-json-sgx" }
 multi-party-ecdsa = { git = "https://github.com/sgx-test/multi-party-ecdsa", branch = "0.4.6-sgx" }
+
+[dependencies.paillier]
+git = "https://github.com/sgx-test/rust-paillier-sgx"
+branch = "0.3.10-sgx"
+
+[dependencies.zk-paillier]
+git = "https://github.com/sgx-test/zk-paillier"
+branch = "0.3.12-sgx"
 
 [features]
 default = []

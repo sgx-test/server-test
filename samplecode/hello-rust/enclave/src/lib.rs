@@ -32,10 +32,36 @@ use std::vec::Vec;
 use std::io::{self, Write};
 use std::slice;
 
-extern crate struct_test;
-use struct_test::KeyGenStage1Input;
+extern crate multi_party_ecdsa;
+
+use multi_party_ecdsa::curv::arithmetic::traits::Converter;
+use multi_party_ecdsa::curv::cryptographic_primitives::proofs::sigma_dlog::DLogProof;
+use multi_party_ecdsa::curv::cryptographic_primitives::secret_sharing::feldman_vss::VerifiableSS;
+use multi_party_ecdsa::curv::elliptic::curves::secp256_k1::{FE, GE};
+use multi_party_ecdsa::curv::elliptic::curves::traits::*;
+use multi_party_ecdsa::protocols::multi_party_ecdsa::gg_2020::orchestrate::{self,*};
+use multi_party_ecdsa::protocols::multi_party_ecdsa::gg_2020::party_i::{
+    KeyGenBroadcastMessage1, KeyGenDecommitMessage1, Keys, Parameters, SharedKeys,
+};
+
+extern crate paillier;
+use paillier::*;
+
+extern crate zk_paillier;
+use zk_paillier::zkproofs::DLogStatement;
 
 extern crate serde_json;
+
+pub fn read_input(input: *const u8, input_len: usize) -> String{
+    let str_slice = unsafe { slice::from_raw_parts(input, input_len) };
+    let str = std::str::from_utf8(str_slice).unwrap();
+    String::from(str)
+}
+
+pub fn write_output(out: *mut u8, outlen: usize, data:String){
+    let raw_buf = unsafe { slice::from_raw_parts_mut(out as * mut u8, data.as_bytes().len() as usize) };
+    raw_buf.copy_from_slice(&data.as_bytes());
+}
 
 #[no_mangle]
 pub extern "C" fn say_something(some_string: *const u8, some_len: usize) -> sgx_status_t {
@@ -71,15 +97,14 @@ pub extern "C" fn say_something(some_string: *const u8, some_len: usize) -> sgx_
 #[no_mangle]
 fn keygen_stage1(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> sgx_status_t{
 
-    let str_slice = unsafe { slice::from_raw_parts(input, inlen) };
+    let input = read_input(input,inlen);
+    let input_struct: KeyGenStage1Input = serde_json::from_str(&input).unwrap();
+    println!("[sgx] keygen_stage1 serde result [{:?}]",input_struct);
 
-    let str_in = std::str::from_utf8(str_slice).unwrap();
+    let output_struct = orchestrate::keygen_stage1(&input_struct);
 
-    let input: KeyGenStage1Input = serde_json::from_str(&str_in).unwrap();
-    println!("keygen_stage1 in sgx {:?}",input);
-
-    let raw_buf = unsafe { slice::from_raw_parts_mut(out as * mut u8, str_slice.len() as usize) };
-    raw_buf.copy_from_slice(str_slice);
+    let output_result = serde_json::to_string(&output_struct).unwrap();
+    write_output(out,outlen,output_result);
 
     sgx_status_t::SGX_SUCCESS
 }
@@ -88,23 +113,72 @@ fn keygen_stage1(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) ->
 #[no_mangle]
 fn keygen_stage2(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> sgx_status_t{
 
-    sgx_status_t::SGX_SUCCESS
+    let input = read_input(input,inlen);
+    let input_struct: KeyGenStage2Input = serde_json::from_str(&input).unwrap();
+    println!("[sgx] keygen_stage2 serde result [{:?}]",input_struct);
+
+    let output_struct = orchestrate::keygen_stage2(&input_struct);
+
+    if output_struct.is_err() {
+        return sgx_status_t::SGX_ERROR_UNEXPECTED;
+    }else {
+        let output_result = serde_json::to_string(&output_struct.unwrap()).unwrap();
+        write_output(out,outlen,output_result);
+
+        return sgx_status_t::SGX_SUCCESS
+    }
+
 }
 
 #[no_mangle]
 fn keygen_stage3(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> sgx_status_t{
 
-    sgx_status_t::SGX_SUCCESS
+    let input = read_input(input,inlen);
+    let input_struct: KeyGenStage3Input = serde_json::from_str(&input).unwrap();
+    println!("[sgx] keygen_stage3 serde result [{:?}]",input_struct);
+
+    let output_struct = orchestrate::keygen_stage3(&input_struct);
+
+    if output_struct.is_err() {
+        return sgx_status_t::SGX_ERROR_UNEXPECTED;
+    }else {
+        let output_result = serde_json::to_string(&output_struct.unwrap()).unwrap();
+        write_output(out,outlen,output_result);
+
+        return sgx_status_t::SGX_SUCCESS
+    }
 }
 
 #[no_mangle]
 fn keygen_stage4(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> sgx_status_t{
 
-    sgx_status_t::SGX_SUCCESS
+    let input = read_input(input,inlen);
+    let input_struct: KeyGenStage4Input = serde_json::from_str(&input).unwrap();
+    println!("[sgx] keygen_stage4 serde result [{:?}]",input_struct);
+
+    let output_struct = orchestrate::keygen_stage4(&input_struct);
+
+    if output_struct.is_err() {
+        return sgx_status_t::SGX_ERROR_UNEXPECTED;
+    }else {
+        let output_result = serde_json::to_string(&output_struct.unwrap()).unwrap();
+        write_output(out,outlen,output_result);
+
+        return sgx_status_t::SGX_SUCCESS
+    }
 }
 
 #[no_mangle]
 fn sign_stage1(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> sgx_status_t{
+
+    let input = read_input(input,inlen);
+    let input_struct: SignStage1Input = serde_json::from_str(&input).unwrap();
+    println!("[sgx] sign_stage1 serde result [{:?}]",input_struct);
+
+    let output_struct = orchestrate::sign_stage1(&input_struct);
+
+    let output_result = serde_json::to_string(&output_struct).unwrap();
+    write_output(out,outlen,output_result);
 
     sgx_status_t::SGX_SUCCESS
 }
@@ -112,23 +186,91 @@ fn sign_stage1(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> s
 #[no_mangle]
 fn sign_stage2(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> sgx_status_t{
 
-    sgx_status_t::SGX_SUCCESS
+    let input = read_input(input,inlen);
+    let input_struct: SignStage2Input = serde_json::from_str(&input).unwrap();
+    println!("[sgx] sign_stage2 serde result [{:?}]",input_struct);
+
+    let output_struct = orchestrate::sign_stage2(&input_struct);
+
+    if output_struct.is_err() {
+        return sgx_status_t::SGX_ERROR_UNEXPECTED;
+    }else {
+        let output_result = serde_json::to_string(&output_struct.unwrap()).unwrap();
+        write_output(out,outlen,output_result);
+
+        return sgx_status_t::SGX_SUCCESS
+    }
 }
 
 #[no_mangle]
 fn sign_stage3(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> sgx_status_t{
 
-    sgx_status_t::SGX_SUCCESS
+    let input = read_input(input,inlen);
+    let input_struct: SignStage3Input = serde_json::from_str(&input).unwrap();
+    println!("[sgx] sign_stage3 serde result [{:?}]",input_struct);
+
+    let output_struct = orchestrate::sign_stage3(&input_struct);
+
+    if output_struct.is_err() {
+        return sgx_status_t::SGX_ERROR_UNEXPECTED;
+    }else {
+        let output_result = serde_json::to_string(&output_struct.unwrap()).unwrap();
+        write_output(out,outlen,output_result);
+
+        return sgx_status_t::SGX_SUCCESS
+    }
 }
 
 #[no_mangle]
 fn sign_stage4(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> sgx_status_t{
 
-    sgx_status_t::SGX_SUCCESS
+    let input = read_input(input,inlen);
+    let input_struct: SignStage4Input = serde_json::from_str(&input).unwrap();
+    println!("[sgx] sign_stage1 serde result [{:?}]",input_struct);
+
+    let output_struct = orchestrate::sign_stage4(&input_struct);
+
+    if output_struct.is_err() {
+        return sgx_status_t::SGX_ERROR_UNEXPECTED;
+    }else {
+        let output_result = serde_json::to_string(&output_struct.unwrap()).unwrap();
+        write_output(out,outlen,output_result);
+
+        return sgx_status_t::SGX_SUCCESS
+    }
 }
 
 #[no_mangle]
 fn sign_stage5(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> sgx_status_t{
 
-    sgx_status_t::SGX_SUCCESS
+    let input = read_input(input,inlen);
+    let input_struct: SignStage5Input = serde_json::from_str(&input).unwrap();
+    println!("[sgx] sign_stage5 serde result [{:?}]",input_struct);
+
+    let output_struct = orchestrate::sign_stage5(&input_struct);
+
+    if output_struct.is_err() {
+        return sgx_status_t::SGX_ERROR_UNEXPECTED;
+    }else {
+        let output_result = serde_json::to_string(&output_struct.unwrap()).unwrap();
+        write_output(out,outlen,output_result);
+
+        return sgx_status_t::SGX_SUCCESS
+    }
 }
+
+//#[no_mangle]
+//fn keygen_stage2(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> sgx_status_t{
+//
+//    let str_slice = unsafe { slice::from_raw_parts(input, inlen) };
+//
+//    let str_in = std::str::from_utf8(str_slice).unwrap();
+//
+//    //let input: KeyGenStage1Input = serde_json::from_str(&str_in).unwrap();
+//    //println!("keygen_stage1 in sgx {:?}",input);
+//
+//    let raw_buf = unsafe { slice::from_raw_parts_mut(out as * mut u8, str_slice.len() as usize) };
+//    raw_buf.copy_from_slice(str_slice);
+//
+//    sgx_status_t::SGX_SUCCESS
+//}

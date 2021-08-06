@@ -23,12 +23,51 @@ use sgx_urts::SgxEnclave;
 
 static ENCLAVE_FILE: &'static str = "enclave.signed.so";
 
+extern crate multi_party_ecdsa;
+extern crate crypto;
+extern crate reqwest;
+extern crate serde;
+
+mod key_ops;
+
+mod server;
+
+mod common;
+use common::{
+    aes_decrypt, aes_encrypt, broadcast, poll_for_broadcasts, poll_for_p2p, postb, sendp2p, Params,
+    PartySignup, AEAD, AES_KEY_BYTES_LEN,
+};
+
 extern {
     fn say_something(eid: sgx_enclave_id_t, retval: *mut sgx_status_t,
                      some_string: *const u8, len: usize) -> sgx_status_t;
     fn keygen_stage1(eid: sgx_enclave_id_t, retval: *mut sgx_status_t,
                      input: *const u8, inlen: usize,
                      out: *mut u8, outlen: usize) -> sgx_status_t;
+    fn keygen_stage2(eid: sgx_enclave_id_t, retval: *mut sgx_status_t,
+                     input: *const u8, inlen: usize,
+                     out: *mut u8, outlen: usize) -> sgx_status_t;
+    fn keygen_stage3(eid: sgx_enclave_id_t, retval: *mut sgx_status_t,
+                     input: *const u8, inlen: usize,
+                     out: *mut u8, outlen: usize) -> sgx_status_t;
+    fn keygen_stage4(eid: sgx_enclave_id_t, retval: *mut sgx_status_t,
+                     input: *const u8, inlen: usize,
+                     out: *mut u8, outlen: usize) -> sgx_status_t;
+    fn sign_stage1(eid: sgx_enclave_id_t, retval: *mut sgx_status_t,
+                     input: *const u8, inlen: usize,
+                     out: *mut u8, outlen: usize) -> sgx_status_t;
+    fn sign_stage2(eid: sgx_enclave_id_t, retval: *mut sgx_status_t,
+                   input: *const u8, inlen: usize,
+                   out: *mut u8, outlen: usize) -> sgx_status_t;
+    fn sign_stage3(eid: sgx_enclave_id_t, retval: *mut sgx_status_t,
+                   input: *const u8, inlen: usize,
+                   out: *mut u8, outlen: usize) -> sgx_status_t;
+    fn sign_stage4(eid: sgx_enclave_id_t, retval: *mut sgx_status_t,
+                   input: *const u8, inlen: usize,
+                   out: *mut u8, outlen: usize) -> sgx_status_t;
+    fn sign_stage5(eid: sgx_enclave_id_t, retval: *mut sgx_status_t,
+                   input: *const u8, inlen: usize,
+                   out: *mut u8, outlen: usize) -> sgx_status_t;
 }
 
 fn init_enclave() -> SgxResult<SgxEnclave> {

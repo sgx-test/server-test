@@ -8,6 +8,12 @@ build = "build.rs"
 sgx_types = { git = "https://github.com/apache/teaclave-sgx-sdk.git" }
 sgx_urts = { git = "https://github.com/apache/teaclave-sgx-sdk.git" }
 multi-party-ecdsa = { git = "https://github.com/sgx-test/multi-party-ecdsa", branch = "0.4.6-sgx-struct" }
+serde_json = "1.0"
+serde = "*"
+rust-crypto = "0.2"
+reqwest = { version = "0.9", default-features = false }
+hex = "0.4"
+actix-web = "*"
 
 [patch.'https://github.com/apache/teaclave-sgx-sdk.git']
 sgx_types = { path = "../../../sgx_types" }
