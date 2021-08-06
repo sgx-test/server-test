@@ -327,7 +327,7 @@ impl EnclaveId {
         result_struct
     }
 
-    pub fn keygen_stage3_exec(&self,input_struct:KeyGenStage2Input) -> KeyGenStage3Result{
+    pub fn keygen_stage3_exec(&self,input_struct:KeyGenStage3Input) -> KeyGenStage3Result{
 
         let input:String = serde_json::to_string(&input_struct).unwrap();
 
