@@ -27,7 +27,7 @@ use reqwest::Client;
 
 use super::*;
 
-fn key_gen(eid: sgx_enclave_id_t,){
+fn key_gen(enclave: EnclaveId,){
 
     let client = Client::new();
     let (party_num_int, uuid) = match signup(&client).unwrap() {
@@ -39,6 +39,8 @@ fn key_gen(eid: sgx_enclave_id_t,){
     let input_stage1 = KeyGenStage1Input {
         index: (party_num_int - 1) as usize,
     };
+
+    let res_stage1: KeyGenStage1Result = enclave.keygen_stage1_exec(input_stage1);
 
 
 
@@ -55,7 +57,7 @@ impl EnclaveId {
         }
     }
 
-    pub fn get_enclave_id(&self) -> sgx_enclave_id_t{
+    fn get_enclave_id(&self) -> sgx_enclave_id_t{
         self.enclave_id
     }
 

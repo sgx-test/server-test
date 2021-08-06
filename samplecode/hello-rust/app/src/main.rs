@@ -29,7 +29,8 @@ extern crate reqwest;
 extern crate serde;
 
 mod key_ops;
-
+use key_ops::{EnclaveId,};
+use multi_party_ecdsa::protocols::multi_party_ecdsa::gg_2020::orchestrate::{self,*};
 mod server;
 
 mod common;
@@ -114,19 +115,25 @@ fn main() {
     }
     println!("[+] say_something success...");
 
-    let input = String::from("{\"index\":5,\"test_data\":{\"data1\":[1,[2102096]],\"data2\":4}}");
-    let mut out = vec![0; 1024];
-    let result = unsafe {
-        keygen_stage1(enclave.geteid(),
-                      &mut retval,
-                      input.as_ptr() as * const u8,
-                      input.len(),
-                      out.as_ptr()  as * mut u8,
-                      out.len(),
-        )
+//    let input = String::from("{\"index\":5,\"test_data\":{\"data1\":[1,[2102096]],\"data2\":4}}");
+//    let mut out = vec![0; 1024];
+//    let result = unsafe {
+//        keygen_stage1(enclave.geteid(),
+//                      &mut retval,
+//                      input.as_ptr() as * const u8,
+//                      input.len(),
+//                      out.as_ptr()  as * mut u8,
+//                      out.len(),
+//        )
+//    };
+//    let str_out = std::str::from_utf8(&out).unwrap();
+    println!("[+] KeyGenStage1Input input...");
+    let input_stage1 = KeyGenStage1Input {
+        index: (2 - 1) as usize,
     };
-    let str_out = std::str::from_utf8(&out).unwrap();
-    println!("[+] out = {}",str_out);
+    let enc = EnclaveId::new(enclave.geteid());
+    let res_stage1: KeyGenStage1Result = enclave.keygen_stage1_exec(input_stage1);
+    println!("[+] KeyGenStage1Input out = {}",res_stage1);
 
     enclave.destroy();
 }
