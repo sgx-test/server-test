@@ -132,8 +132,8 @@ fn main() {
         index: (2 - 1) as usize,
     };
     let enc = EnclaveId::new(enclave.geteid());
-    let res_stage1: KeyGenStage1Result = enclave.keygen_stage1_exec(input_stage1);
-    println!("[+] KeyGenStage1Input out = {}",res_stage1);
+    let res_stage1: KeyGenStage1Result = enc.keygen_stage1_exec(input_stage1);
+    println!("[+] KeyGenStage1Input out = {:?}",res_stage1);
 
     enclave.destroy();
 }

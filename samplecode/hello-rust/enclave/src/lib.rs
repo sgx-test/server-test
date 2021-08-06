@@ -59,6 +59,7 @@ pub fn read_input(input: *const u8, input_len: usize) -> String{
 }
 
 pub fn write_output(out: *mut u8, outlen: usize, data:String){
+    println!("[sgx] keygen_stage1 write_output len ,{:?}",data.as_bytes().len());
     let raw_buf = unsafe { slice::from_raw_parts_mut(out as * mut u8, data.as_bytes().len() as usize) };
     raw_buf.copy_from_slice(&data.as_bytes());
 }
@@ -102,10 +103,9 @@ fn keygen_stage1(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) ->
     println!("[sgx] keygen_stage1 serde result [{:?}]",input_struct);
 
     let output_struct = orchestrate::keygen_stage1(&input_struct);
-
     let output_result = serde_json::to_string(&output_struct).unwrap();
+    let ttt: KeyGenStage1Result = serde_json::from_str(&output_result).unwrap();
     write_output(out,outlen,output_result);
-
     sgx_status_t::SGX_SUCCESS
 }
 
