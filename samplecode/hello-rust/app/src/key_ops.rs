@@ -266,11 +266,11 @@ pub fn key_gen(enclave: EnclaveId,){
     };
 
     println!("====key_gen_end====y_sum===={:?}",y_sum);
-//    fs::write(
-//        &env::args().nth(2).unwrap(),
-//        serde_json::to_string(&party_key_pair).unwrap(),
-//    )
-//        .expect("Unable to save !");
+    fs::write(
+        "store_1",
+        serde_json::to_string(&party_key_pair).unwrap(),
+    )
+        .expect("Unable to save !");
 
 }
 
@@ -464,6 +464,50 @@ impl EnclaveId {
         let mut str_out = std::str::from_utf8(&out).unwrap().to_string();
         let trim = str_out.replace("\u{0}","");
         let result_struct: SignStage4Result = serde_json::from_str(&trim).unwrap();
+        result_struct
+    }
+
+    pub fn sign_stage6_exec(&self,input_struct:SignStage6Input) -> SignStage6Result{
+
+        let input:String = serde_json::to_string(&input_struct).unwrap();
+
+        let mut retval = sgx_status_t::SGX_SUCCESS;
+
+        let mut out = vec![0; 40960];
+        let result = unsafe {
+            super::sign_stage5(self.get_enclave_id(),
+                               &mut retval,
+                               input.as_ptr() as * const u8,
+                               input.len(),
+                               out.as_ptr()  as * mut u8,
+                               out.len(),
+            )
+        };
+        let mut str_out = std::str::from_utf8(&out).unwrap().to_string();
+        let trim = str_out.replace("\u{0}","");
+        let result_struct: SignStage6Result = serde_json::from_str(&trim).unwrap();
+        result_struct
+    }
+
+    pub fn sign_stage7_exec(&self,input_struct:SignStage7Input) -> SignStage7Result{
+
+        let input:String = serde_json::to_string(&input_struct).unwrap();
+
+        let mut retval = sgx_status_t::SGX_SUCCESS;
+
+        let mut out = vec![0; 40960];
+        let result = unsafe {
+            super::sign_stage5(self.get_enclave_id(),
+                               &mut retval,
+                               input.as_ptr() as * const u8,
+                               input.len(),
+                               out.as_ptr()  as * mut u8,
+                               out.len(),
+            )
+        };
+        let mut str_out = std::str::from_utf8(&out).unwrap().to_string();
+        let trim = str_out.replace("\u{0}","");
+        let result_struct: SignStage7Result = serde_json::from_str(&trim).unwrap();
         result_struct
     }
 

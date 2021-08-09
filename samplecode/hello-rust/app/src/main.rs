@@ -30,7 +30,8 @@ extern crate serde;
 
 mod key_ops;
 use key_ops::{EnclaveId,key_gen};
-use multi_party_ecdsa::protocols::multi_party_ecdsa::gg_2020::orchestrate::{self,*};
+mod key_sign_ops;
+
 mod server;
 
 mod gg20;
@@ -41,6 +42,9 @@ use common::{
     aes_decrypt, aes_encrypt, broadcast, poll_for_broadcasts, poll_for_p2p, postb, sendp2p, Params,
     PartySignup, AEAD, AES_KEY_BYTES_LEN,
 };
+
+use multi_party_ecdsa::protocols::multi_party_ecdsa::gg_2020::orchestrate::{self,*};
+
 
 extern {
     fn say_something(eid: sgx_enclave_id_t, retval: *mut sgx_status_t,
