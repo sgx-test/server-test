@@ -13,6 +13,7 @@ use multi_party_ecdsa::protocols::multi_party_ecdsa::gg_2020::party_i::{
 use multi_party_ecdsa::*;
 use multi_party_ecdsa::zk_paillier::zkproofs::DLogStatement;
 use multi_party_ecdsa::paillier::EncryptionKey;
+use multi_party_ecdsa::curv::BigInt;
 
 extern crate serde_json;
 use serde::{Deserialize, Serialize};
@@ -27,7 +28,7 @@ use reqwest::Client;
 
 use super::*;
 
-fn key_gen(enclave: EnclaveId,){
+pub fn key_gen(enclave: EnclaveId,){
 
     let params: Parameters = Parameters{
         threshold: 1,   //t
@@ -39,6 +40,7 @@ fn key_gen(enclave: EnclaveId,){
         PartySignup { number, uuid } => (number, uuid),
     };
 
+    println!("[signup] {:?}---{:?}",party_num_int,uuid);
     let delay = time::Duration::from_millis(600);
 
     let input_stage1 = KeyGenStage1Input {
@@ -54,6 +56,8 @@ fn key_gen(enclave: EnclaveId,){
         serde_json::to_string(&res_stage1.bc_com1_l).unwrap(),
         uuid.clone()
     ).is_ok());
+
+    println!("broadcast {:?}",party_num_int - 1);
 
     let round1_ans_vec = poll_for_broadcasts(
         &client,
@@ -260,11 +264,13 @@ fn key_gen(enclave: EnclaveId,){
         y_sum_s: y_sum,
         h1_h2_N_tilde_vec_s: h1_h2_N_tilde_vec,
     };
-    fs::write(
-        &env::args().nth(2).unwrap(),
-        serde_json::to_string(&party_key_pair).unwrap(),
-    )
-        .expect("Unable to save !");
+
+    println!("====key_gen_end====y_sum===={:?}",y_sum);
+//    fs::write(
+//        &env::args().nth(2).unwrap(),
+//        serde_json::to_string(&party_key_pair).unwrap(),
+//    )
+//        .expect("Unable to save !");
 
 }
 
@@ -289,6 +295,7 @@ impl EnclaveId {
 
         let mut retval = sgx_status_t::SGX_SUCCESS;
 
+        println!("====keygen_stage1_exec====input===={:?}",input);
         let mut out = vec![0; 40960];
         let result = unsafe {
             super::keygen_stage1(self.get_enclave_id(),
@@ -301,6 +308,7 @@ impl EnclaveId {
         };
         let mut str_out = std::str::from_utf8(&out).unwrap().to_string();
         let trim = str_out.replace("\u{0}","");
+        //println!("trim = {:?}",trim);
         let result_struct: KeyGenStage1Result = serde_json::from_str(&trim).unwrap();
         result_struct
     }

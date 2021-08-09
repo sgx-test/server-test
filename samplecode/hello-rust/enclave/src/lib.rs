@@ -100,7 +100,7 @@ fn keygen_stage1(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) ->
 
     let input = read_input(input,inlen);
     let input_struct: KeyGenStage1Input = serde_json::from_str(&input).unwrap();
-    println!("[sgx] keygen_stage1 serde result [{:?}]",input_struct);
+    //println!("[sgx] keygen_stage1 serde result [{:?}]",input_struct);
 
     let output_struct = orchestrate::keygen_stage1(&input_struct);
     let output_result = serde_json::to_string(&output_struct).unwrap();
@@ -115,7 +115,7 @@ fn keygen_stage2(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) ->
 
     let input = read_input(input,inlen);
     let input_struct: KeyGenStage2Input = serde_json::from_str(&input).unwrap();
-    println!("[sgx] keygen_stage2 serde result [{:?}]",input_struct);
+    //println!("[sgx] keygen_stage2 serde result [{:?}]",input_struct);
 
     let output_struct = orchestrate::keygen_stage2(&input_struct);
 
@@ -135,7 +135,7 @@ fn keygen_stage3(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) ->
 
     let input = read_input(input,inlen);
     let input_struct: KeyGenStage3Input = serde_json::from_str(&input).unwrap();
-    println!("[sgx] keygen_stage3 serde result [{:?}]",input_struct);
+    //println!("[sgx] keygen_stage3 serde result [{:?}]",input_struct);
 
     let output_struct = orchestrate::keygen_stage3(&input_struct);
 
@@ -154,7 +154,7 @@ fn keygen_stage4(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) ->
 
     let input = read_input(input,inlen);
     let input_struct: KeyGenStage4Input = serde_json::from_str(&input).unwrap();
-    println!("[sgx] keygen_stage4 serde result [{:?}]",input_struct);
+    //println!("[sgx] keygen_stage4 serde result [{:?}]",input_struct);
 
     let output_struct = orchestrate::keygen_stage4(&input_struct);
 
@@ -173,7 +173,7 @@ fn sign_stage1(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> s
 
     let input = read_input(input,inlen);
     let input_struct: SignStage1Input = serde_json::from_str(&input).unwrap();
-    println!("[sgx] sign_stage1 serde result [{:?}]",input_struct);
+    //println!("[sgx] sign_stage1 serde result [{:?}]",input_struct);
 
     let output_struct = orchestrate::sign_stage1(&input_struct);
 
@@ -188,7 +188,7 @@ fn sign_stage2(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> s
 
     let input = read_input(input,inlen);
     let input_struct: SignStage2Input = serde_json::from_str(&input).unwrap();
-    println!("[sgx] sign_stage2 serde result [{:?}]",input_struct);
+    //println!("[sgx] sign_stage2 serde result [{:?}]",input_struct);
 
     let output_struct = orchestrate::sign_stage2(&input_struct);
 
@@ -207,7 +207,7 @@ fn sign_stage3(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> s
 
     let input = read_input(input,inlen);
     let input_struct: SignStage3Input = serde_json::from_str(&input).unwrap();
-    println!("[sgx] sign_stage3 serde result [{:?}]",input_struct);
+    //println!("[sgx] sign_stage3 serde result [{:?}]",input_struct);
 
     let output_struct = orchestrate::sign_stage3(&input_struct);
 
@@ -226,7 +226,7 @@ fn sign_stage4(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> s
 
     let input = read_input(input,inlen);
     let input_struct: SignStage4Input = serde_json::from_str(&input).unwrap();
-    println!("[sgx] sign_stage1 serde result [{:?}]",input_struct);
+    //println!("[sgx] sign_stage1 serde result [{:?}]",input_struct);
 
     let output_struct = orchestrate::sign_stage4(&input_struct);
 
@@ -245,9 +245,47 @@ fn sign_stage5(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> s
 
     let input = read_input(input,inlen);
     let input_struct: SignStage5Input = serde_json::from_str(&input).unwrap();
-    println!("[sgx] sign_stage5 serde result [{:?}]",input_struct);
+    //println!("[sgx] sign_stage5 serde result [{:?}]",input_struct);
 
     let output_struct = orchestrate::sign_stage5(&input_struct);
+
+    if output_struct.is_err() {
+        return sgx_status_t::SGX_ERROR_UNEXPECTED;
+    }else {
+        let output_result = serde_json::to_string(&output_struct.unwrap()).unwrap();
+        write_output(out,outlen,output_result);
+
+        return sgx_status_t::SGX_SUCCESS
+    }
+}
+
+#[no_mangle]
+fn sign_stage6(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> sgx_status_t{
+
+    let input = read_input(input,inlen);
+    let input_struct: SignStage6Input = serde_json::from_str(&input).unwrap();
+    //println!("[sgx] sign_stage5 serde result [{:?}]",input_struct);
+
+    let output_struct = orchestrate::sign_stage6(&input_struct);
+
+    if output_struct.is_err() {
+        return sgx_status_t::SGX_ERROR_UNEXPECTED;
+    }else {
+        let output_result = serde_json::to_string(&output_struct.unwrap()).unwrap();
+        write_output(out,outlen,output_result);
+
+        return sgx_status_t::SGX_SUCCESS
+    }
+}
+
+#[no_mangle]
+fn sign_stage7(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> sgx_status_t{
+
+    let input = read_input(input,inlen);
+    let input_struct: SignStage7Input = serde_json::from_str(&input).unwrap();
+    //println!("[sgx] sign_stage5 serde result [{:?}]",input_struct);
+
+    let output_struct = orchestrate::sign_stage7(&input_struct);
 
     if output_struct.is_err() {
         return sgx_status_t::SGX_ERROR_UNEXPECTED;

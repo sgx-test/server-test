@@ -29,9 +29,12 @@ extern crate reqwest;
 extern crate serde;
 
 mod key_ops;
-use key_ops::{EnclaveId,};
+use key_ops::{EnclaveId,key_gen};
 use multi_party_ecdsa::protocols::multi_party_ecdsa::gg_2020::orchestrate::{self,*};
 mod server;
+
+mod gg20;
+use gg20::test_key_gen;
 
 mod common;
 use common::{
@@ -67,6 +70,12 @@ extern {
                    input: *const u8, inlen: usize,
                    out: *mut u8, outlen: usize) -> sgx_status_t;
     fn sign_stage5(eid: sgx_enclave_id_t, retval: *mut sgx_status_t,
+                   input: *const u8, inlen: usize,
+                   out: *mut u8, outlen: usize) -> sgx_status_t;
+    fn sign_stage6(eid: sgx_enclave_id_t, retval: *mut sgx_status_t,
+                   input: *const u8, inlen: usize,
+                   out: *mut u8, outlen: usize) -> sgx_status_t;
+    fn sign_stage7(eid: sgx_enclave_id_t, retval: *mut sgx_status_t,
                    input: *const u8, inlen: usize,
                    out: *mut u8, outlen: usize) -> sgx_status_t;
 }
@@ -115,6 +124,7 @@ fn main() {
     }
     println!("[+] say_something success...");
 
+    test_key_gen(enclave.geteid());
 //    let input = String::from("{\"index\":5,\"test_data\":{\"data1\":[1,[2102096]],\"data2\":4}}");
 //    let mut out = vec![0; 1024];
 //    let result = unsafe {
@@ -127,13 +137,14 @@ fn main() {
 //        )
 //    };
 //    let str_out = std::str::from_utf8(&out).unwrap();
-    println!("[+] KeyGenStage1Input input...");
-    let input_stage1 = KeyGenStage1Input {
-        index: (2 - 1) as usize,
-    };
-    let enc = EnclaveId::new(enclave.geteid());
-    let res_stage1: KeyGenStage1Result = enc.keygen_stage1_exec(input_stage1);
-    println!("[+] KeyGenStage1Input out = {:?}",res_stage1);
+
+//    println!("[+] KeyGenStage1Input input...");
+//    let input_stage1 = KeyGenStage1Input {
+//        index: (2 - 1) as usize,
+//    };
+//    let enc = EnclaveId::new(enclave.geteid());
+//    let res_stage1: KeyGenStage1Result = enc.keygen_stage1_exec(input_stage1);
+//    println!("[+] KeyGenStage1Input out = {:?}",res_stage1);
 
     enclave.destroy();
 }

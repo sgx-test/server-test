@@ -80,9 +80,10 @@ pub fn postb<T>(client: &Client, path: &str, body: T) -> Option<String>
 where
     T: serde::ser::Serialize,
 {
-    let addr = env::args()
-        .nth(1)
-        .unwrap_or_else(|| "http://127.0.0.1:8001".to_string());
+//    let addr = env::args()
+//        .nth(1)
+//        .unwrap_or_else(|| "http://127.0.0.1:8001".to_string());
+    let addr = String::from("http://127.0.0.1:8000");
     let retries = 3;
     let retry_delay = time::Duration::from_millis(250);
     for _i in 1..retries {
