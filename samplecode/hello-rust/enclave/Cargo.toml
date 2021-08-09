@@ -11,6 +11,7 @@ crate-type = ["staticlib"]
 #struct-test = { path = "../../../../struct-test" }
 serde_json = { git = "https://github.com/mesalock-linux/serde-json-sgx" }
 multi-party-ecdsa = { git = "https://github.com/sgx-test/multi-party-ecdsa", branch = "0.4.6-sgx" }
+serde_cbor = { git = "https://github.com/mesalock-linux/cbor-sgx" }
 
 [dependencies.paillier]
 git = "https://github.com/sgx-test/rust-paillier-sgx"
