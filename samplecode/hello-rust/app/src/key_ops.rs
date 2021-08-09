@@ -1,4 +1,5 @@
 use std::{env, iter::repeat, thread, time, time::Duration};
+use std::fs;
 
 use multi_party_ecdsa::curv::arithmetic::traits::Converter;
 use multi_party_ecdsa::curv::cryptographic_primitives::proofs::sigma_dlog::DLogProof;
