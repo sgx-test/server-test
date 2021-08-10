@@ -28,6 +28,50 @@ use common::{
 use reqwest::Client;
 
 use super::*;
+use std::slice;
+
+pub fn read_input(input: *const u8, input_len: usize) -> String{
+    let str_slice = unsafe { slice::from_raw_parts(input, input_len) };
+    let str = std::str::from_utf8(str_slice).unwrap();
+    String::from(str)
+}
+
+pub fn write_output(out: *mut u8, outlen: usize, data:String){
+    println!("[sgx] keygen_stage1 write_output len ,{:?}",data.as_bytes().len());
+    let raw_buf = unsafe { slice::from_raw_parts_mut(out as * mut u8, data.as_bytes().len() as usize) };
+    raw_buf.copy_from_slice(&data.as_bytes());
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Stage {
+    pub round: String,
+    pub party_num_int: u16,
+    pub output: String,
+    pub uuid: String,
+}
+
+#[no_mangle]
+pub extern "C" fn ocall_broadcast(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> sgx_status_t{
+    println!("ocall_broadcast");
+    let input = read_input(input,inlen);
+    let input_struct: Stage = serde_json::from_str(&input).unwrap();
+
+    println!("ocall_broadcast = {:?}",input);
+    println!("ocall_broadcast = {:?}",input_struct);
+    let client = Client::new();
+
+    assert!(broadcast(
+        &client,
+        input_struct.party_num_int,
+        &input_struct.round,
+        input_struct.output,
+        input_struct.uuid
+    ).is_ok());
+
+    let output_result = "output_result test".to_string();
+    write_output(out,outlen,output_result);
+    sgx_status_t::SGX_SUCCESS
+}
 
 pub fn key_gen(enclave: EnclaveId,){
 
@@ -309,7 +353,6 @@ impl EnclaveId {
         };
         let mut str_out = std::str::from_utf8(&out).unwrap().to_string();
         let trim = str_out.replace("\u{0}","");
-        //println!("trim = {:?}",trim);
         let result_struct: KeyGenStage1Result = serde_json::from_str(&trim).unwrap();
         result_struct
     }

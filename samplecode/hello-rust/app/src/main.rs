@@ -29,7 +29,7 @@ extern crate reqwest;
 extern crate serde;
 
 mod key_ops;
-use key_ops::{EnclaveId,key_gen};
+use key_ops::{EnclaveId,key_gen,ocall_broadcast};
 mod key_sign_ops;
 
 mod server;
@@ -44,7 +44,6 @@ use common::{
 };
 
 use multi_party_ecdsa::protocols::multi_party_ecdsa::gg_2020::orchestrate::{self,*};
-
 
 extern {
     fn say_something(eid: sgx_enclave_id_t, retval: *mut sgx_status_t,

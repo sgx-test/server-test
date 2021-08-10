@@ -20,8 +20,10 @@
 
 #![cfg_attr(not(target_env = "sgx"), no_std)]
 #![cfg_attr(target_env = "sgx", feature(rustc_private))]
-
+extern crate serde_cbor;
+extern crate sgx_tseal;
 extern crate sgx_types;
+extern crate serde;
 #[cfg(not(target_env = "sgx"))]
 #[macro_use]
 extern crate sgx_tstd as std;
@@ -31,6 +33,7 @@ use std::string::String;
 use std::vec::Vec;
 use std::io::{self, Write};
 use std::slice;
+use std::string::ToString;
 
 extern crate multi_party_ecdsa;
 
@@ -51,6 +54,12 @@ extern crate zk_paillier;
 use zk_paillier::zkproofs::DLogStatement;
 
 extern crate serde_json;
+
+pub mod key_gen;
+use key_gen::*;
+
+pub mod http;
+use http::*;
 
 pub fn read_input(input: *const u8, input_len: usize) -> String{
     let str_slice = unsafe { slice::from_raw_parts(input, input_len) };
@@ -91,6 +100,31 @@ pub extern "C" fn say_something(some_string: *const u8, some_len: usize) -> sgx_
 
     // Ocall to normal world for output
     println!("{}", &hello_string);
+
+    println!("ocall_dada 1 ");
+    let ocall_dada = Stage {
+        round: "round1".to_string(),
+        party_num_int: 1u16,
+        output: "output".to_string(),
+        uuid: "adf_dsaf_11".to_string(),
+    };
+    let ocall_dada:String = serde_json::to_string(&ocall_dada).unwrap();
+    println!("ocall_dada in ocall_dada{:?}",ocall_dada);
+    let mut out = vec![0; 4096];
+    let mut ret_val= sgx_status_t::SGX_SUCCESS;
+    let result = unsafe {
+        ocall_broadcast(
+            &mut ret_val as *mut sgx_status_t,
+            ocall_dada.as_ptr() as * const u8,
+            ocall_dada.len(),
+            out.as_ptr()  as * mut u8,
+            out.len(),
+        )
+    };
+    println!("ocall_dada 2 result{:?}",result);
+    let mut str_out = std::str::from_utf8(&out).unwrap().to_string();
+    let trim = str_out.replace("\u{0}","");
+    println!("ocall_dada 2 output{:?}",trim);
 
     sgx_status_t::SGX_SUCCESS
 }
@@ -297,17 +331,14 @@ fn sign_stage7(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> s
     }
 }
 
-#[macro_use]
-extern crate serde_derive;
-extern crate serde_cbor;
+
 
 use sgx_types::{ sgx_sealed_data_t};
 use sgx_types::marker::ContiguousMemory;
 use sgx_tseal::{SgxSealedData};
-use sgx_rand::{Rng, StdRng};
-
 
 use multi_party_ecdsa::PartyKeyPair;
+use serde::{Deserialize, Serialize};
 
 #[no_mangle]
 pub extern "C" fn create_sealeddata_for_serializable(data:PartyKeyPair,sealed_log: * mut u8, sealed_log_size: u32) -> sgx_status_t {
@@ -384,6 +415,20 @@ fn from_sealed_log_for_slice<'a, T: Copy + ContiguousMemory>(sealed_log: * mut u
     unsafe {
         SgxSealedData::<[T]>::from_raw_sealed_data_t(sealed_log as * mut sgx_sealed_data_t, sealed_log_size)
     }
+}
+
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Stage {
+    pub round: String,
+    pub party_num_int: u16,
+    pub output: String,
+    pub uuid: String,
+}
+
+extern "C" {
+    fn ocall_broadcast(ret_val: *mut sgx_status_t, input: *const u8, inlen: usize,
+                   out: *mut u8, outlen: usize) -> sgx_status_t;
 }
 
 //#[no_mangle]

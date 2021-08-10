@@ -12,6 +12,8 @@ crate-type = ["staticlib"]
 serde_json = { git = "https://github.com/mesalock-linux/serde-json-sgx" }
 multi-party-ecdsa = { git = "https://github.com/sgx-test/multi-party-ecdsa", branch = "0.4.6-sgx" }
 serde_cbor = { git = "https://github.com/mesalock-linux/cbor-sgx" }
+sgx_tseal = { git = "https://github.com/apache/teaclave-sgx-sdk.git" }
+serde = { git = "https://github.com/mesalock-linux/serde-sgx" }
 
 [dependencies.paillier]
 git = "https://github.com/sgx-test/rust-paillier-sgx"
@@ -28,6 +30,8 @@ default = []
 sgx_types = { git = "https://github.com/apache/teaclave-sgx-sdk.git" }
 sgx_tstd = { git = "https://github.com/apache/teaclave-sgx-sdk.git", features = ["backtrace"] }
 sgx_trts = { git = "https://github.com/apache/teaclave-sgx-sdk.git" }
+sgx_tseal = { git = "https://github.com/apache/teaclave-sgx-sdk.git" }
+
 [patch.'https://github.com/apache/teaclave-sgx-sdk.git']
 sgx_alloc = { path = "../../../sgx_alloc" }
 sgx_build_helper = { path = "../../../sgx_build_helper" }

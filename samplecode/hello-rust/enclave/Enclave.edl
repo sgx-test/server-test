@@ -37,4 +37,8 @@ enclave {
         public sgx_status_t sign_stage6([in, size=inlen] const uint8_t* input, size_t inlen, [out, size=outlen]  uint8_t* output, size_t outlen);
         public sgx_status_t sign_stage7([in, size=inlen] const uint8_t* input, size_t inlen, [out, size=outlen]  uint8_t* output, size_t outlen);
     };
+
+    untrusted{
+        sgx_status_t ocall_broadcast([in, size=inlen] const uint8_t* input, size_t inlen, [out, size=outlen]  uint8_t* output, size_t outlen);
+    };
 };
