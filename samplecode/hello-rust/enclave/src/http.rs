@@ -7,6 +7,7 @@ use http_req::{error::Error, response::StatusCode};
 use std::net::TcpStream;
 use http_req::request;
 use std::*;
+use serde::{Deserialize, Serialize};
 
 pub fn http() {
     let mut writer = Vec::new(); //container for body of a response
@@ -15,17 +16,24 @@ pub fn http() {
     println!("Status: {} {}", res.status_code(), res.reason());
 }
 
-pub fn get(addr:String, body:Vec<u8>) -> Option<String> {
+pub fn postb<T>(addr:String, path: &str, body: T) -> Option<String>
+    where
+        T: serde::ser::Serialize
+{
+    let body_string = serde_json::to_string(&body).unwrap();
 
     let mut writer = Vec::new();
-    let uri = addr.parse().unwrap();
 
-    let retry_delay = time::Duration::from_millis(250);
-    for _i in 1..3 {
+    let uri = format!("{}/{}", addr, path);
+    let uri = uri.parse().unwrap();
+
+    let retry_delay = time::Duration::from_millis(500);
+    for _i in 1..4 {
         let res = Request::new(&uri)
             .method(Method::POST)
             .header("Content-Type", "application/json")
-            .body(&body)
+            .header("Content-Length", &body_string.as_bytes().len())
+            .body(&body_string.as_bytes())
             .send(&mut writer);
 
         if let Ok(mut resp) = res {
