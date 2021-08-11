@@ -55,6 +55,8 @@ use zk_paillier::zkproofs::DLogStatement;
 
 extern crate serde_json;
 
+extern crate http_req;
+
 pub mod key_gen;
 use key_gen::*;
 

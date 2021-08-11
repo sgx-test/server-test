@@ -14,6 +14,7 @@ multi-party-ecdsa = { git = "https://github.com/sgx-test/multi-party-ecdsa", bra
 serde_cbor = { git = "https://github.com/mesalock-linux/cbor-sgx" }
 sgx_tseal = { git = "https://github.com/apache/teaclave-sgx-sdk.git" }
 serde = { git = "https://github.com/mesalock-linux/serde-sgx" }
+http_req = { git = "https://github.com/mesalock-linux/http_req-sgx" }
 
 [dependencies.paillier]
 git = "https://github.com/sgx-test/rust-paillier-sgx"
@@ -28,7 +29,7 @@ default = []
 
 [target.'cfg(not(target_env = "sgx"))'.dependencies]
 sgx_types = { git = "https://github.com/apache/teaclave-sgx-sdk.git" }
-sgx_tstd = { git = "https://github.com/apache/teaclave-sgx-sdk.git", features = ["backtrace"] }
+sgx_tstd = { git = "https://github.com/apache/teaclave-sgx-sdk.git", features = ["backtrace","thread"] }
 sgx_trts = { git = "https://github.com/apache/teaclave-sgx-sdk.git" }
 sgx_tseal = { git = "https://github.com/apache/teaclave-sgx-sdk.git" }
 

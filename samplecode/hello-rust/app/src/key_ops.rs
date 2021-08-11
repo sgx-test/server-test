@@ -84,7 +84,7 @@ pub fn key_gen(enclave: EnclaveId,){
     let (party_num_int, uuid) = match signup(&client).unwrap() {
         PartySignup { number, uuid } => (number, uuid),
     };
-
+//////////////
     println!("[signup] {:?}---{:?}",party_num_int,uuid);
     let delay = time::Duration::from_millis(600);
 
@@ -134,7 +134,7 @@ pub fn key_gen(enclave: EnclaveId,){
         "round2",
         uuid.clone(),
     );
-
+///////////
     let mut decom1_vec = round2_ans_vec
         .iter()
         .map(|m| serde_json::from_str::<KeyGenDecommitMessage1>(m).unwrap())
