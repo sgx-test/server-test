@@ -14,8 +14,7 @@ use multi_party_ecdsa::curv::{
 
 //use reqwest::Client;
 
-use http::postb as postb_2;
-use http::http;
+use http::postb as postb_inner;
 use serde::{Deserialize, Serialize};
 
 use super::*;
@@ -78,12 +77,11 @@ pub fn aes_decrypt(key: &[u8], aead_pack: AEAD) -> Vec<u8> {
     out
 }
 
-pub fn postb<T>( /*client:  /*& /*client,*/*/,*/ path: &str, body: T) -> Option<String>
+pub fn postb<T>( /*client:& client,*/ path: &str, body: T) -> Option<String>
 where
     T: serde::ser::Serialize,
 {
-    //http();
-    postb_2("http://0.0.0.0:8000".to_string(),path,body)
+    postb_inner("http://0.0.0.0:8000".to_string(),path,body)
 }
 
 pub fn broadcast(

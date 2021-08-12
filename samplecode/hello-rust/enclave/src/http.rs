@@ -1,20 +1,12 @@
 use std::prelude::v1::*;
 use http_req::request::*;
 use http_req::response::*;
-use http_req::tls;
 use http_req::uri::Uri;
 use http_req::{error::Error, response::StatusCode};
 use std::net::TcpStream;
 use http_req::request;
 use std::*;
 use serde::{Deserialize, Serialize};
-
-pub fn http() {
-    let mut writer = Vec::new(); //container for body of a response
-    let res = request::get("https://doc.rust-lang.org/", &mut writer).unwrap();
-
-    println!("Status: {} {}", res.status_code(), res.reason());
-}
 
 pub fn postb<T>(addr:String, path: &str, body: T) -> Option<String>
     where

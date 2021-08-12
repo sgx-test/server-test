@@ -22,28 +22,6 @@ use multi_party_ecdsa::PartyKeyPair;
 use common::*;
 use sgx_types::sgx_status_t;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
-struct ParamsFile {
-    pub parties: String,
-    pub threshold: String,
-}
-
-impl From<ParamsFile> for Parameters {
-    fn from(item: ParamsFile) -> Self {
-        Parameters {
-            share_count: item.parties.parse::<u16>().unwrap(),
-            threshold: item.threshold.parse::<u16>().unwrap(),
-        }
-    }
-}
-
-pub fn signup(/*client: &Client*/) -> Result<PartySignup, ()> {
-    let key = "signup-sign".to_string();
-
-    let res_body = postb(/*&client,*/ "signupsign", key).unwrap();
-    serde_json::from_str(&res_body).unwrap()
-}
-
 pub fn key_sign(url:&str,keypair: PartyKeyPair, keystore:&str , message:&str) /*-> Result<(SK,SK,FE,FE,u8)> */{
 
     let message_str = message.to_string();
@@ -398,4 +376,26 @@ pub fn key_sign(url:&str,keypair: PartyKeyPair, keystore:&str , message:&str) /*
     //check_sig(&sig.r, &sig.s, sig.recid,&message_bn, &keypair.y_sum_s.clone());
     //fs::write("signature".to_string(), sign_json).expect("Unable to save !");
     //Ok((sig.r.get_element(),sig.s.get_element(),sig.r ,sig.s, sig.recid.clone()))
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+struct ParamsFile {
+    pub parties: String,
+    pub threshold: String,
+}
+
+impl From<ParamsFile> for Parameters {
+    fn from(item: ParamsFile) -> Self {
+        Parameters {
+            share_count: item.parties.parse::<u16>().unwrap(),
+            threshold: item.threshold.parse::<u16>().unwrap(),
+        }
+    }
+}
+
+pub fn signup(/*client: &Client*/) -> Result<PartySignup, ()> {
+    let key = "signup-sign".to_string();
+
+    let res_body = postb(/*&client,*/ "signupsign", key).unwrap();
+    serde_json::from_str(&res_body).unwrap()
 }
