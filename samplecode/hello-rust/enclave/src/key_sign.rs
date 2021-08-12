@@ -12,7 +12,7 @@ use multi_party_ecdsa::protocols::multi_party_ecdsa::gg_2020::party_i::{
 use multi_party_ecdsa::utilities::mta::{MessageA, MessageB};
 use paillier::*;
 use serde::{Deserialize, Serialize};
-use std::{env, time};
+use std::{env, time, fs};
 use zk_paillier::zkproofs::DLogStatement;
 use multi_party_ecdsa::PartyKeyPair;
 
@@ -38,9 +38,9 @@ pub fn key_sign(url:&str,keypair: PartyKeyPair, keystore:&str , message:&str) /*
     // delay:
     let delay = time::Duration::from_millis(250);
     // read key file
-//    let data = fs::read_to_string(keystore)
-//        .expect("Unable to load keys, did you run keygen first? ");
-//    let keypair: PartyKeyPair = serde_json::from_str(&data).unwrap();
+    let data = fs::read_to_string(keystore)
+        .expect("Unable to load keys, did you run keygen first? ");
+    let keypair: PartyKeyPair = serde_json::from_str(&data).unwrap();
 
 
     let params = Parameters {

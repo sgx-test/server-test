@@ -254,11 +254,11 @@ pub fn ken_gen(url:&str, store:&str) /* -> Result<([u8;65],Vec<Vec<u8>>)> */{
         y_sum_s: y_sum,
         h1_h2_N_tilde_vec_s: h1_h2_N_tilde_vec,
     };
-//    fs::write(
-//        store,
-//        serde_json::to_string(&party_key_pair).unwrap(),
-//    )
-//        .expect("Unable to save !");
+    fs::write(
+        store,
+        serde_json::to_string(&party_key_pair).unwrap(),
+    )
+        .expect("Unable to save !");
 
     println!("=================start to convert===================");
     let publickey = y_sum.clone();
