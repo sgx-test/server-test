@@ -81,6 +81,9 @@ extern {
     fn sign_stage7(eid: sgx_enclave_id_t, retval: *mut sgx_status_t,
                    input: *const u8, inlen: usize,
                    out: *mut u8, outlen: usize) -> sgx_status_t;
+    fn keygen_ecall(eid: sgx_enclave_id_t, retval: *mut sgx_status_t,
+                     input: *const u8, inlen: usize,
+                     out: *mut u8, outlen: usize) -> sgx_status_t;
 }
 
 fn init_enclave() -> SgxResult<SgxEnclave> {
@@ -128,6 +131,7 @@ fn main() {
     println!("[+] say_something success...");
 
     test_key_gen(enclave.geteid());
+
 //    let input = String::from("{\"index\":5,\"test_data\":{\"data1\":[1,[2102096]],\"data2\":4}}");
 //    let mut out = vec![0; 1024];
 //    let result = unsafe {

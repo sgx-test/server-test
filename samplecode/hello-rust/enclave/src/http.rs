@@ -21,7 +21,6 @@ pub fn postb<T>(addr:String, path: &str, body: T) -> Option<String>
         T: serde::ser::Serialize
 {
     let body_string = serde_json::to_string(&body).unwrap();
-
     let mut writer = Vec::new();
 
     let uri = format!("{}/{}", addr, path);

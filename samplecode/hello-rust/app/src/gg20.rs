@@ -30,8 +30,8 @@ pub fn test_key_gen(en_id : sgx_enclave_id_t) {
             };
 
 
-            key_gen(EnclaveId::new(enclave.geteid()));
-
+            let e = EnclaveId::new(enclave.geteid());
+            e.keygen_ecall_exec();
 
             enclave.destroy();
         });

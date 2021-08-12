@@ -21,6 +21,9 @@ enclave {
     from "sgx_backtrace.edl" import *;
     from "sgx_tstdc.edl" import *;
     from "sgx_thread.edl" import *;
+    from "sgx_net.edl" import *;
+    from "sgx_pipe.edl" import *;
+    from "sgx_file.edl" import *;
     trusted {
         /* define ECALLs here. */
 
@@ -37,6 +40,9 @@ enclave {
         public sgx_status_t sign_stage5([in, size=inlen] const uint8_t* input, size_t inlen, [out, size=outlen]  uint8_t* output, size_t outlen);
         public sgx_status_t sign_stage6([in, size=inlen] const uint8_t* input, size_t inlen, [out, size=outlen]  uint8_t* output, size_t outlen);
         public sgx_status_t sign_stage7([in, size=inlen] const uint8_t* input, size_t inlen, [out, size=outlen]  uint8_t* output, size_t outlen);
+
+        public sgx_status_t keygen_ecall([in, size=inlen] const uint8_t* input, size_t inlen, [out, size=outlen]  uint8_t* output, size_t outlen);
+
     };
 
     untrusted{

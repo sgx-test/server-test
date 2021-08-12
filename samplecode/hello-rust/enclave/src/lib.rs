@@ -24,6 +24,7 @@ extern crate serde_cbor;
 extern crate sgx_tseal;
 extern crate sgx_types;
 extern crate serde;
+extern crate hex;
 #[cfg(not(target_env = "sgx"))]
 #[macro_use]
 extern crate sgx_tstd as std;
@@ -59,9 +60,14 @@ extern crate http_req;
 
 pub mod key_gen;
 use key_gen::*;
+pub mod key_sign;
+use key_gen::*;
 
 pub mod http;
 use http::*;
+
+pub mod common;
+use common::*;
 
 pub fn read_input(input: *const u8, input_len: usize) -> String{
     let str_slice = unsafe { slice::from_raw_parts(input, input_len) };
@@ -77,6 +83,14 @@ pub fn write_output(out: *mut u8, outlen: usize, data:String){
 
 #[no_mangle]
 pub extern "C" fn say_something(some_string: *const u8, some_len: usize) -> sgx_status_t {
+
+//    use http_req::request;
+//    println!("aaa ");
+//    let mut writer = Vec::new();
+//    let body = "signup-keygen".as_bytes();
+//    let res = request::post("http://0.0.0.0:8000/signupkeygen", &body, &mut writer);
+//
+//    println!("bbb res {:?}",res);
 
     let str_slice = unsafe { slice::from_raw_parts(some_string, some_len) };
     let _ = io::stdout().write(str_slice);
@@ -132,7 +146,7 @@ pub extern "C" fn say_something(some_string: *const u8, some_len: usize) -> sgx_
 }
 
 #[no_mangle]
-fn keygen_stage1(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> sgx_status_t{
+pub extern "C" fn keygen_stage1(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> sgx_status_t{
 
     let input = read_input(input,inlen);
     let input_struct: KeyGenStage1Input = serde_json::from_str(&input).unwrap();

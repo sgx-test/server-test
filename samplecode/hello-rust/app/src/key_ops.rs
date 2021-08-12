@@ -26,7 +26,6 @@ use common::{
 };
 
 use reqwest::Client;
-
 use super::*;
 use std::slice;
 
@@ -332,6 +331,24 @@ impl EnclaveId {
 
     fn get_enclave_id(&self) -> sgx_enclave_id_t{
         self.enclave_id
+    }
+
+    pub fn keygen_ecall_exec(&self){
+
+        let input:String = "test".to_string();
+
+        let mut retval = sgx_status_t::SGX_SUCCESS;
+
+        let mut out = vec![0; 40960];
+        let result = unsafe {
+            super::keygen_ecall(self.get_enclave_id(),
+                                 &mut retval,
+                                 input.as_ptr() as * const u8,
+                                 input.len(),
+                                 out.as_ptr()  as * mut u8,
+                                 out.len(),
+            )
+        };
     }
 
     pub fn keygen_stage1_exec(&self,input_struct:KeyGenStage1Input) -> KeyGenStage1Result{

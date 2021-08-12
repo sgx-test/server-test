@@ -15,6 +15,7 @@ serde_cbor = { git = "https://github.com/mesalock-linux/cbor-sgx" }
 sgx_tseal = { git = "https://github.com/apache/teaclave-sgx-sdk.git" }
 serde = { git = "https://github.com/mesalock-linux/serde-sgx" }
 http_req = { git = "https://github.com/mesalock-linux/http_req-sgx" }
+hex = { git = "https://github.com/mesalock-linux/rust-hex-sgx" }
 
 [dependencies.paillier]
 git = "https://github.com/sgx-test/rust-paillier-sgx"
