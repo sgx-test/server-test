@@ -27,7 +27,7 @@ extern crate sgx_tstd as std;
 #[cfg(target_env = "sgx")]
 extern crate sgx_types;
 
-use http_req::{request::RequestBuilder, tls, uri::Uri};
+use http_req::{request::RequestBuilder, tls, uri::Uri,request};
 use sgx_types::*;
 use std::ffi::CStr;
 use std::net::TcpStream;
@@ -36,6 +36,14 @@ use std::prelude::v1::*;
 
 #[no_mangle]
 pub extern "C" fn send_http_request(hostname: *const c_char) -> sgx_status_t {
+
+    println!("aaa ");
+    let mut writer = Vec::new();
+    let body = "signup-keygen".as_bytes();
+    let res = request::post("http://0.0.0.0:8000/signupkeygen", &body, &mut writer);
+
+    println!("bbb res {:?}",body);
+
     if hostname.is_null() {
         return sgx_status_t::SGX_ERROR_UNEXPECTED;
     }

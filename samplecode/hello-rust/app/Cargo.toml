@@ -3,6 +3,7 @@ name = "app"
 version = "1.0.0"
 authors = ["The Teaclave Authors"]
 build = "build.rs"
+edition = "2018"
 
 [dependencies]
 sgx_types = { git = "https://github.com/apache/teaclave-sgx-sdk.git" }

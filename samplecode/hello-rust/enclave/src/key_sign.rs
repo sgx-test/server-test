@@ -22,7 +22,14 @@ use multi_party_ecdsa::PartyKeyPair;
 use common::*;
 use sgx_types::sgx_status_t;
 
-pub fn key_sign(url:&str,keypair: PartyKeyPair, keystore:&str , message:&str) /*-> Result<(SK,SK,FE,FE,u8)> */{
+#[no_mangle]
+pub extern "C" fn keysign_ecall(input: *const u8, inlen: usize, out: *mut u8, outlen: usize) -> sgx_status_t{
+
+    key_sign("","","");
+    sgx_status_t::SGX_SUCCESS
+}
+
+pub fn key_sign(url:&str,/*keypair: PartyKeyPair,*/ keystore:&str , message:&str) /*-> Result<(SK,SK,FE,FE,u8)> */{
 
     let message_str = message.to_string();
     println!("[key_sign ]message_str is {:?}",message_str);

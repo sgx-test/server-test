@@ -27,6 +27,7 @@ extern crate multi_party_ecdsa;
 extern crate crypto;
 extern crate reqwest;
 extern crate serde;
+extern crate actix_web;
 
 mod key_ops;
 use key_ops::{EnclaveId,key_gen,ocall_broadcast};
